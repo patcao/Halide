@@ -1,0 +1,10 @@
+#This script will compile and rnu any halide script
+#The user must not name the output of the compilation. It will
+#automatically be named a.hal
+
+f=$1
+shift
+g++ $f -g -I $HALIDE/include -L $HALIDE/bin -lHalide $@ -o a.hal
+
+LD_LIBRARY_PATH=$HALIDE/bin ./a.hal
+	

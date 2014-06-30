@@ -1,0 +1,2 @@
+#This script runs a compiled Halide program
+LD_LIBRARY_PATH=$HALIDE/bin ./$1

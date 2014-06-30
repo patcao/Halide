@@ -4,6 +4,8 @@ using Halide::Image;
 #include "image_io.h"
 #include <time.h>
 #include <sys/time.h>
+#include <math.h>
+
 using namespace std;
 using namespace Halide;
 int start,diff,msec;
@@ -12,22 +14,33 @@ int start,diff,msec;
 
 Image<uint8_t> parallel(Func in, int W, int H,int xsplit, int ysplit);
 Image<uint8_t> normal(Func in,int W, int H);
-Image<uint8_t> cpp(Func in,int W, int H);
-void pgradient(Func in, int W, int H);
-void gradient(Func in, int W, int H);
+void cpp(uint8_t in[][768][3],int W, int H);
+void pgradient(int W, int H);
+void gradient (int W, int H);
 
-uint64_t GetTimeStamp();
 
+//2706 1668
+//768 1280
 int main(){
 	
-	Image<uint8_t> input = load<uint8_t>("images/hres-freeway.png");
+	Image<uint8_t> input = load<uint8_t>("images/rgb.png");
 
 	int W = input.width(), H = input.height();
-
+	int C = input.channels();
 	Var x,y,c;
-	Func in("input"),f("parallel");
-	in(x,y,c) = (sqrt(input(clamp(x,0,W-1),clamp(y,0,H-1),c)));
+	//Func in("input"),f("parallel");
+	//in(x,y,c) = (sqrt(input(clamp(x,0,W-1),clamp(y,0,H-1),c)));
 	
+	uint8_t array[1280][768][3];
+
+	for(int row = 0; row < H; ++row)
+		for(int col = 0; col < W; ++col)
+			for(int dim = 0; dim < C; ++dim)
+				array[row][col][dim] =input(col,row,dim);
+	
+//	cout << W << "   " << H;
+	timing(cpp(array,W,H),"c++");
+
 /*	
 	timing(normal(in,W/2,H/2), "Normal Half Image");
 	timing(parallel(in,W/2,H/2,256,256), "Parallel Half Image");
@@ -39,6 +52,7 @@ int main(){
 */
 
 
+/*
 timing(parallel(in,W/2,H/2,256,256),"Optimized Half Image");
 timing(parallel(in,W,H,256,256), "Optimized Full Image");
 //timing(cpp(in,W,H), "C++:");
@@ -48,6 +62,8 @@ timing(parallel(in,W,H,256,256), "Optimized Full Image");
 	for(int i = 0; i < 10; ++i)
 		parallel(in,W,H,256,256);
 		, "10 Runs Parallel");
+
+*/
 
 /*
 	timing(
@@ -104,37 +120,35 @@ Image<uint8_t> normal(Func in,int W, int H){
 	return output2;
 }
 
-Image<uint8_t> cpp(Func in,int W, int H){
-	Image<uint8_t> ret(W/2,H/2,3);
-
-	for(int c = 0; c < 3; ++c)
-		for(int x = 0; x < W/2; ++x)
-			for(int y = 0; y < H/2; ++y)
-				cast<uint8_t> ((in(2*x,2*y,c) + in(2*x+1, 2*y,c) + in(2*x,2*y+1,c) + in(2*x+1,2*y+1,c))/ 4);
-	return ret;
+void cpp(uint8_t in[][768][3],int W, int H){
+		for(int x = 0; x < W; ++x)
+			for(int y = 0; y < H; ++y)
+				for(int d = 0; d < 3; ++d)
+					if(2*x + 1 < W && 2*y + 1 > H)
+						sqrt((in[2*y][2*x][d] + in[2*y][2*x + 1][d] + in[2*y + 1][2*x][d] + in[2*y+1][2*x+1][d]) / 4.0f);
 }
 
 
-void pgradient(Func in,int W, int H){
+void pgradient(int W, int H){
 	Var x,y;
 	Func gradient_fast("gradient_fast");
 	gradient_fast(x, y) = x + y;
 
 	Var x_outer, y_outer, x_inner, y_inner, tile_index;
 	gradient_fast
-		.tile(x, y, x_outer, y_outer, x_inner, y_inner, 256, 256)
-		.fuse(x_outer, y_outer, tile_index)
-		.parallel(tile_index);
+		.tile(x, y, x_outer, y_outer, x_inner, y_inner, 256, 256);
+		//.fuse(x_outer, y_outer, tile_index)
+		//.parallel(tile_index);
 
 	Var x_inner_outer, y_inner_outer, x_vectors, y_pairs;
-/*	gradient_fast
+	gradient_fast
 		.tile(x_inner, y_inner, x_inner_outer, y_inner_outer, x_vectors, y_pairs, 4, 2)
 		.vectorize(x_vectors)
 		.unroll(y_pairs);
-*/
+
 	gradient_fast.realize(W,H);
 }
-void gradient(Func in, int W, int H){
+void gradient(int W, int H){
 	Var x,y;
 	Func gradient("gradient");
 	gradient(x,y) = x + y;

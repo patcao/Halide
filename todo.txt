@@ -1,0 +1,28 @@
+
+2. Learn how to use GDB
+
+4. Read paper
+
+
+Cross Compile for ARM
+
+
+LLVM Pass
+
+
+
+Write a benchmark in c++ for comparison
+
+
+Write a benchmark in CUDA for comparison
+
+
+Figure out how to use the image_io.h
+
+
+
+Compile Halide successfully on the GPU board
+
+
+
+

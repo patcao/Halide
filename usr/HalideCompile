@@ -1,0 +1,6 @@
+#Script to compile Halide code
+f=$1
+shift
+
+g++ $f -g -I $HALIDE/include -L $HALIDE/bin -lHalide `libpng-config --cflags --ldflags` -lpthread -ldl $@
+

@@ -1,0 +1,6 @@
+
+#Script to dump IR code 
+f=$1
+shift
+
+clang -O3 -emit-llvm $f -S $@
