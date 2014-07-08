@@ -1,0 +1,37 @@
+Credit:
+Mark Harris - NVIDIA Corporation
+
+Description:
+A simple 1D Stencil code useful for teaching students about the benefits
+and usage of shared memory in a GPU. This example is greatly enhanced
+when paired with a profiler showing the bottleneck and speedup gained
+at the end.
+
+Files:
+  Exercise:
+    Exercise/exercise.cu - The serial C code lacking any OpenACC constructs
+  Answer:
+    Answer/answer.cu - A simple OpenACC C ccelerated version of the code.
+
+Compile:
+Using the NVIDIA C Compiler
+nvcc -o stencil exercise.cu
+
+Flow:
+1. First compile and run the code without using any shared memory. Make
+sure the students profile and time the code to see how long it's taking
+2. Optionally, you can show them how to use the profiler to determine
+what the problem is.
+3. Have the students modify the code to make use of shared memory. At 
+this point do not mention the __syncthreads() function. Have them run
+the code a number of times and notice they get semi-random errors in the
+output.
+4. Introduce the __syncthreads() concept and have the students try and add
+into their code. 
+5. Once they are getting the correct answer, profile and time code again
+to see the speed-up achieved.
+
+References:
+For a description on what this 1D Stencil code does, please see slides
+located here: 
+1. <add 1D Stencil slides>
