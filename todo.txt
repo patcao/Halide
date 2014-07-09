@@ -21,8 +21,13 @@ Figure out how to use the image_io.h
 
 
 
-Compile Halide successfully on the GPU board
+LLVM JIT
 
+Write main function that will cross compile Halide
+
+Fix c++ implementatio of shrinking
+
+Write a compiled list of timings
 
 
 
