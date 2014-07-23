@@ -4,7 +4,6 @@
 4. Read paper
 
 
-Cross Compile for ARM
 
 
 LLVM Pass
@@ -17,11 +16,11 @@ Write a benchmark in c++ for comparison
 Write a benchmark in CUDA for comparison
 
 
-Figure out how to use the image_io.h
-
-
 
 LLVM JIT
+
+Understand compilation flow
+
 
 Write main function that will cross compile Halide
 
@@ -29,5 +28,8 @@ Fix c++ implementatio of shrinking
 
 Write a compiled list of timings
 
+Write code for CUDA, run code on GPU cores
 
+
+Cross Compile for ARM
 

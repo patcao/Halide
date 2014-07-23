@@ -38,17 +38,18 @@ int main(){
 	vector<unsigned char> v = decodeOneStep("images/rgb.png");
 	
 	vector<unsigned char> ret;
-	
-	/*for(unsigned int x = 0; x < width; ++x){
+	/*
+	printf("Starting image calculation \n");
+	for(unsigned int x = 0; x < width; ++x){
 		for(unsigned int y = 0; y < height; ++y){			
 			uint8_t *arr = getRGB(v,x,y);
 			for(int i = 0; i < 4; ++i)
 				ret.push_back((unsigned char)arr[i]);
 		}
-	}*/
-	
+	}
+	*/
 
-	encodeOneStep("ret.png",ret);
+	encodeOneStep("ret.png",v);
 	cout << "Loaded!" << endl;
 }
 

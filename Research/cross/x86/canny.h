@@ -1,5 +1,5 @@
-#ifndef HALIDE_fib
-#define HALIDE_fib
+#ifndef HALIDE_canny
+#define HALIDE_canny
 #ifndef BUFFER_T_DEFINED
 #define BUFFER_T_DEFINED
 #include <stdint.h>
@@ -20,5 +20,5 @@ typedef struct buffer_t {
 #ifdef __cplusplus
 extern "C"
 #endif
-int fib(buffer_t *_f1) HALIDE_FUNCTION_ATTRS;
+int canny(buffer_t *_input, buffer_t *_ret) HALIDE_FUNCTION_ATTRS;
 #endif
