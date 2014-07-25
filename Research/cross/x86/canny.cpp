@@ -28,6 +28,9 @@ int main(int argc, char **argv) {
 	args.push_back(input);
 	ret.compile_to_file("canny", args);
 
+
+	ret.compile_to_c("test.cpp", args, "edge");
+
 //	Image<uint8_t> output = ret.realize(input.width(),input.height(),input.channels());		
 //	save(output,"both.png");
 	//save(input,"original.png");

@@ -26,18 +26,27 @@ int main(){
 	
 	uint8_t *src2 = (uint8_t *)malloc(sizeof(uint8_t) * width * height * 3);
 
+/*
+ * The way that halide wants entries arranged is RRRRRR....GGGGGG...BBBBB
+ * The way the lodepng arranges entries is RGBARGBA...
+ * Need to loop through lodepng's representation and convert it to Halides
+ * format
+ */
 
 	for(int c = 0;c < 3; ++c)
 		for(int y = 0; y < height; ++y)
 			for(int x = 0; x < width; ++x)
 				src2[x + y*width + c*width*height] = src[ 4*(x + y*width) + c] ;
 
-
+	//Zero-initialize structs
 	buffer_t dstBuf = {0};
 	buffer_t srcBuf = {0};		
 
+	//Give pointers where image data will go
 	dstBuf.host = output;
 	srcBuf.host = src2;
+
+	//The extent of each dimension in the image
 	srcBuf.extent[0] = dstBuf.extent[0] = width;
 	srcBuf.extent[1] = dstBuf.extent[1] = height;
 	srcBuf.extent[2] = dstBuf.extent[2] = 3;
@@ -46,10 +55,12 @@ int main(){
 	srcBuf.min[1] = dstBuf.min[1] = 0;
 	srcBuf.min[2] = dstBuf.min[2] = 0;
 
+	//Number of entries between each adjacent entry for that dimension
 	srcBuf.stride[0] = dstBuf.stride[0] = 1;
 	srcBuf.stride[1] = dstBuf.stride[1] = width;
 	srcBuf.stride[2] = dstBuf.stride[2] = width * height;
 
+	//How many bytes are in each entry, using a uin8_t for each pixel
 	srcBuf.elem_size = dstBuf.elem_size = 1;
 
 	timing(
@@ -58,12 +69,13 @@ int main(){
 
 
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint8_t) * width * height * 4);
-
+//Convert from Halide representation to lodepng representation of image
 	for(int c = 0;c < 3; ++c)
 		for(int y = 0; y < height; ++y)
 			for(int x = 0; x < width; ++x)
 				out[ 4*(x+y*width) + c] = output[x + y*width + c*width*height] ;
 
+	//Copy back the alpha levels from the original image
 	for(int a = 1; a < width * height; ++a)
 		out[a*4 - 1] = src[4*a - 1];
 
