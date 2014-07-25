@@ -31,5 +31,12 @@ Write a compiled list of timings
 Write code for CUDA, run code on GPU cores
 
 
-Cross Compile for ARM
 
+
+
+Run different scheduling on arm and on x86
+
+
+Find out if JIT or AOT is faster
+
+Use Halide to run code on GPU
