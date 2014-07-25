@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "canny.h"
 #include "lodepng.h"
+#include <patlib.h>
 unsigned width, height;
 
 unsigned char * decode(const char* filename){
@@ -51,9 +52,9 @@ int main(){
 
 	srcBuf.elem_size = dstBuf.elem_size = 1;
 
-	
+	timing(
 	canny(&srcBuf, &dstBuf);
-	printf("%d \n",*dstBuf.host);
+	,"Canny Edge");
 
 
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint8_t) * width * height * 4);
