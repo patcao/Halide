@@ -20,5 +20,5 @@ typedef struct buffer_t {
 #ifdef __cplusplus
 extern "C"
 #endif
-int canny(buffer_t *_input, buffer_t *_ret) HALIDE_FUNCTION_ATTRS;
+int canny(buffer_t *_input, buffer_t *_f1) HALIDE_FUNCTION_ATTRS;
 #endif

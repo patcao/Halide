@@ -2,6 +2,8 @@
 
 using Halide::Image;
 #include "image_io.h"
+#include <patlib.h>
+
 
 using namespace Halide;
 using namespace std;
@@ -12,41 +14,32 @@ Func sobelMag(Func in);
 Func sobelAng(Func in);
 
 int main(int argc, char **argv) {
-    //Image<uint8_t> input = load<uint8_t>("rgb.png");
+//    Image<uint8_t> input = load<uint8_t>("../images/rgb.png");
 
     ImageParam input(type_of<uint8_t>(), 3, "input");
+
 	Var x("x"),y("y"),c("c");
 	Func in("in");
 	in(x,y,c) = input(clamp(x,0,input.width() - 1) , clamp(y,0,input.height() - 1), c);
 	Func mag = sobelMag(gaussianBlur(in));
-	Func ret("ret");
-	ret(x,y,c) = cast<uint8_t> (mag(x,y,c) );
-	
 	
 
 	std::vector<Argument> args;
 	args.push_back(input);
-	ret.compile_to_file("canny", args);
+	mag.compile_to_file("canny", args);
 
-//	Image<uint8_t> output = ret.realize(input.width(),input.height(),input.channels());		
-//	save(output,"both.png");
-	//save(input,"original.png");
+	/*
+	timing(
+	Image<uint8_t> output = mag.realize(input.width(),input.height(),input.channels());
+	, "Canny");		
+	save(output,"both.png");
+	*/
 }
 
 
 //Performs a gaussian blur with a 5x5 gaussian kernel
 Func gaussianBlur(Func in){
 	Var x("x1"),y("y1"),c("c1");
-/*
-	k(x,y) = 0;
-	k(0,0) = 2;	k(0,1) = 4;	 k(0,2) = 5;   k(0,3) = 4;  k(0,4) = 2;
-	k(1,0) = 4;	k(1,1) = 9;	 k(1,2) = 12;  k(1,3) = 9;  k(1,4) = 4;
-	k(2,0) = 5;	k(2,1) = 12; k(2,2) = 15;  k(2,3) = 12; k(2,4) = 5;
-	k(3,0) = 4;	k(3,1) = 9;	 k(3,2) = 12;  k(3,3) = 9;  k(3,4) = 4;
-	k(4,0) = 2;	k(4,1) = 4;  k(4,2) = 5;   k(4,3) = 4;  k(4,4) = 2;
-	Func scaled;
-	scaled(x,y,c) = convolution(in,k,5,5)(x,y,c) / 159;
-*/
 
 	Func k("gauss_kernel");
 	k(x,y) = 0;
@@ -57,6 +50,7 @@ Func gaussianBlur(Func in){
 	k(4,0) = 1;	k(4,1) = 4;  k(4,2) = 7;   k(4,3) = 4;   k(4,4) = 1;
 	Func scaled;
 	scaled(x,y,c) = convolution(in,k,5,5)(x,y,c) / 273.0f;
+	scaled.compute_root();
 	return scaled;
 }
 
@@ -71,7 +65,37 @@ Func sobelMag(Func in){
 	vs = -1.0f * in(x-1,y-1,c) - 2.0f * in(x,y-1,c)  - 1.0f * in(x+1,y-1,c) 		
 		+ 1.0f * in(x-1,y+1,c) + 2.0f * in(x,y+1,c) + 1.0f * in(x+1,y+1,c);
 	Func mag;
-	mag(x,y,c) = sqrt(hs*hs+vs*vs);
+	mag(x,y,c) = cast<uint8_t>(sqrt(hs*hs+vs*vs));
+
+	Var x_outer, y_outer, x_inner, y_inner, tile_index;
+
+	mag.tile(x,y,x_outer,y_outer,x_inner,y_inner,256,256)
+	.fuse(x_outer,y_outer,tile_index)
+	.parallel(tile_index);
+
+
+/*
+	mag
+	.tile(x_inner, y_inner, x_inner_outer, y_inner_outer, x_vectors, y_pairs, 4, 2)
+	.vectorize(x_vectors)
+	.unroll(y_pairs);
+*/
+	
+/*
+	Var x_outer, y_outer, x_inner, y_inner, tile_index;
+	
+	f.tile(x,y,x_outer,y_outer,x_inner,y_inner,xsplit,ysplit);
+	 //.fuse(x_outer,y_outer,tile_index)
+	 //.parallel(tile_index);
+
+	 Var x_inner_outer, y_inner_outer, x_vectors, y_pairs;
+	 
+	f
+	.tile(x_inner, y_inner, x_inner_outer, y_inner_outer, x_vectors, y_pairs, 4, 2)
+	.vectorize(x_vectors)
+	.unroll(y_pairs);
+*/	
+
 	return mag;
 }
 
@@ -87,11 +111,10 @@ Func sobelAng(Func in){
 	vs = -1.0f * in(x-1,y-1,c) - 2.0f * in(x,y-1,c)  - 1.0f * in(x+1,y-1,c) 		  + 1.0f * in(x-1,y+1,c) + 2.0f * in(x,y+1,c) + 1.0f * in(x+1,y+1,c);
 	Func ang;
 	Expr bool0 = atan2(hs,vs) - 0.78539;
-	/*
-	Expr bool45 = ;
-	Expr bool90 = ;
-	Expr bool135 = ;
-*/
+//	Expr bool45 = ;
+//	Expr bool90 = ;
+//	Expr bool135 = ;
+
 	ang(x,y,c) = 5;
 	return ang;
 }
