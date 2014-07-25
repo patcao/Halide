@@ -63,9 +63,10 @@ int main(){
 	//How many bytes are in each entry, using a uin8_t for each pixel
 	srcBuf.elem_size = dstBuf.elem_size = 1;
 
-	timing(
-	canny(&srcBuf, &dstBuf);
-	,"Canny Edge");
+	for(int i = 0; i < 10 ;++i){
+		printf("trial: %d" , i);
+		timing(canny(&srcBuf, &dstBuf);,"Canny Edge");
+	}
 
 
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint8_t) * width * height * 4);
