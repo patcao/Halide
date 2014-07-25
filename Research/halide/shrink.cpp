@@ -2,15 +2,17 @@
 #include <stdio.h>
 using Halide::Image;
 #include "image_io.h"
-#include <time.h>
-#include <sys/time.h>
+//#include <time.h>
+//#include <sys/time.h>
+#include <patlib.h>
 #include <math.h>
 
 using namespace std;
 using namespace Halide;
+/*
 int start,diff,msec;
 #define timing(func,name) start = clock(); func; diff = clock() - start; msec = diff * 1000 / CLOCKS_PER_SEC; cout << name << " Timing: " << msec << " ms" << endl;
-
+*/
 
 Image<uint8_t> parallel(Func in, int W, int H,int xsplit, int ysplit);
 Image<uint8_t> normal(Func in,int W, int H);
@@ -23,7 +25,7 @@ void gradient (int W, int H);
 //768 1280
 int main(){
 	
-	Image<uint8_t> input = load<uint8_t>("images/rgb.png");
+	Image<uint8_t> input = load<uint8_t>("../images/rgb.png");
 
 	int W = input.width(), H = input.height();
 	int C = input.channels();
@@ -154,9 +156,10 @@ void gradient(int W, int H){
 	gradient(x,y) = x + y;
 	gradient.realize(W,H);
 }
-
+/*
 uint64_t GetTimeStamp() {
 	struct timeval tv;
 	gettimeofday(&tv,NULL);
 	return tv.tv_sec*(uint64_t)1000000+tv.tv_usec;
 }
+*/

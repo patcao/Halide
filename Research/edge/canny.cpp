@@ -82,12 +82,12 @@ Func sobelAng(Func in){
 
 	vs = -1.0f * in(x-1,y-1,c) - 2.0f * in(x,y-1,c)  - 1.0f * in(x+1,y-1,c) 		  + 1.0f * in(x-1,y+1,c) + 2.0f * in(x,y+1,c) + 1.0f * in(x+1,y+1,c);
 	Func ang;
-	Expr bool0 = atan2(hs,vs) - 0.78539
-	Expr bool45 = ;
-	Expr bool90 = ;
-	Expr bool135 = ;
+	Expr bool0 = atan2(hs,vs) - 0.78539;
+//	Expr bool45 = ;
+//	Expr bool90 = ;
+//	Expr bool135 = ;
 
-	ang(x,y,c) = ;
+	ang(x,y,c) = 5;
 	return ang;
 }
 

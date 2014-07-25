@@ -4,7 +4,7 @@
 
 f=$1
 shift
-g++ $f $INCLUDE/lodepng.cpp -g -I $HALIDE/include $INCLUDE -L $HALIDE/bin -lHalide $@ -o a.hal
+g++ $f $INCLUDE/lodepng.cpp -g -I $HALIDE/include -I $INCLUDE -L $HALIDE/bin -lHalide $@ -o a.hal
 
 LD_LIBRARY_PATH=$HALIDE/bin ./a.hal
 	

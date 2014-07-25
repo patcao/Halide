@@ -2,5 +2,5 @@
 f=$1
 shift
 
-g++ $f $INCLUDE/lodepng.cpp -g -I $HALIDE/include $INCLUDE -L $HALIDE/bin -lHalide `libpng-config --cflags --ldflags` -lpthread -ldl $@
+g++ $f $INCLUDE/lodepng.cpp -g -I $HALIDE/include -I $INCLUDE -L $HALIDE/bin -lHalide `libpng-config --cflags --ldflags` -lpthread -ldl $@
 
