@@ -26,7 +26,7 @@ void encode(const char* filename, const unsigned char* image){
 }
 
 int main(){
-	uint8_t *src = decode("rgb.png");
+	uint8_t *src = decode("hres-freeway.png");
 	uint8_t *output = (uint8_t *)malloc(sizeof(uint8_t) * width * height*3);
 	
 	uint8_t *src2 = (uint8_t *)malloc(sizeof(uint8_t) * width * height * 3);

@@ -23,22 +23,31 @@ int test_case = 0;
  * Case 5: Vectorize with computer root and parallel
  **/ 
 int main(int argc, char **argv) {
-    Image<uint8_t> input = load<uint8_t>("../images/rgb.png");
+//    Image<uint8_t> input = load<uint8_t>("../images/rgb.png");
 
+
+    ImageParam input(type_of<uint8_t>(), 3, "input");
+
+	std::vector<Argument> args;
+	args.push_back(input);
 
 	Var x("x"),y("y"),c("c");
 	Func in("in");
 	in(x,y,c) = input(clamp(x,0,input.width() - 1) , clamp(y,0,input.height() - 1), c);
-	Image<uint8_t> output;
+//	Image<uint8_t> output;
 
 	for(int i = 0; i < 6; ++i){
 		test_case = i;
 		Func mag = sobelMag(gaussianBlur(in));
 		printf("Case %d: ", i);
-		timing( output = mag.realize(input.width(),input.height(),input.channels());, "Canny");
+
+
+		char buff[15];
+		sprintf(buff,"canny%d",i);
+		mag.compile_to_file(buff, args);
 	}
 
-	save(output,"both.png");
+//	save(output,"both.png");
 	
 }
 
