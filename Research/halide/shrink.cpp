@@ -33,22 +33,25 @@ int main(){
 	//Func in("input"),f("parallel");
 	//in(x,y,c) = (sqrt(input(clamp(x,0,W-1),clamp(y,0,H-1),c)));
 	
+	/*
 	uint8_t array[1280][768][3];
 
 	for(int row = 0; row < H; ++row)
 		for(int col = 0; col < W; ++col)
 			for(int dim = 0; dim < C; ++dim)
 				array[row][col][dim] =input(col,row,dim);
-	
+	*/
 //	cout << W << "   " << H;
-	timing(cpp(array,W,H),"c++");
+	//timing(cpp(array,W,H),"c++");
 
-/*	
+/*
 	timing(normal(in,W/2,H/2), "Normal Half Image");
 	timing(parallel(in,W/2,H/2,256,256), "Parallel Half Image");
 	timing(cpp(in,W/2,H/2), "C++ Half Image");
+*/
 
 	timing(normal(in,W,H),"Normal Full Image");
+/*
 	timing(parallel(in,W,H,256,256),"Parallel Full Image");
 	timing(cpp(in,W,H), "C++ Full Image");
 */

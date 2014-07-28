@@ -3,7 +3,7 @@
 using Halide::Image;
 #include "image_io.h"
 #include <patlib.h>
-
+#include <time.h>
 
 using namespace Halide;
 using namespace std;
@@ -13,6 +13,7 @@ Func gaussianBlur(Func in);
 Func sobelMag(Func in);
 Func sobelAng(Func in);
 
+ 
 int test_case = 0;
 /** TEST CASES
  * Case 0: Default Scheduling
@@ -25,6 +26,7 @@ int test_case = 0;
 int main(int argc, char **argv) {
     Image<uint8_t> input = load<uint8_t>("../images/rgb.png");
 
+	//struct timeval t1,t0;
 
 	Var x("x"),y("y"),c("c");
 	Func in("in");
@@ -35,7 +37,11 @@ int main(int argc, char **argv) {
 		test_case = i;
 		Func mag = sobelMag(gaussianBlur(in));
 		printf("Case %d: ", i);
+	//	gettimeofday(&t0,0);
 		timing( output = mag.realize(input.width(),input.height(),input.channels());, "Canny");
+	//	gettimeofday(&t1,0);
+	//	long elapsed = (t1.tv_sec - t0.tv_sec) * 1000000 + t1.tv_usec - t0.tv_usec;
+	//	printf("user: %lu ms\n", elapsed / 1000);
 	}
 
 	save(output,"both.png");
