@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "canny.h"
+#include "canny0.h"
+#include "canny1.h"
+#include "canny2.h"
+#include "canny3.h"
+#include "canny4.h"
+#include "canny5.h"
 #include "lodepng.h"
 #include <patlib.h>
 unsigned width, height;
