@@ -50,7 +50,7 @@ Func gaussianBlur(Func in){
 	k(4,0) = 1;	k(4,1) = 4;  k(4,2) = 7;   k(4,3) = 4;   k(4,4) = 1;
 	Func scaled;
 	scaled(x,y,c) = convolution(in,k,5,5)(x,y,c) / 273.0f;
-	scaled.compute_root();
+	//scaled.compute_root();
 	return scaled;
 }
 
