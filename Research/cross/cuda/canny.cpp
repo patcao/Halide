@@ -83,7 +83,7 @@ Func sobelMag(Func in){
 	Func mag;
 	mag(x,y,c) = cast<uint8_t>(sqrt(hs*hs+vs*vs));
 
-	mag.gpu_tile(x,y,c,16,16,1);
+	mag.cuda_tile(x,y,c,16,16,1);
 	return mag;
 }
 
@@ -112,6 +112,6 @@ Func convolution(Func f, Func hx, Expr kernel_width,Expr kernel_height){
 	Func convolved("convolved");
 	RDom k (0,kernel_width,0,kernel_height);
 	convolved(x,y,c) += ( hx(k.x,k.y)*f(x+k.x-(kernel_width/2),y+k.y-(kernel_height/2),c));
-	convolved.gpu_tile(x,y,c,16,16,1);
+	convolved.cuda_tile(x,y,c,16,16,1);
 	return convolved;
 }
