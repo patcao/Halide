@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "canny_single.h"
+#include "canny0.h"
+#include "canny1.h"
+#include "canny2.h"
+#include "canny3.h"
+#include "canny4.h"
+#include "canny5.h"
 #include "lodepng.h"
 #include <patlib.h>
 unsigned width, height;
@@ -64,7 +69,22 @@ int main(){
 	srcBuf.elem_size = dstBuf.elem_size = 1;
 
 		printf("trial: %d " , 0);
-		timing(canny_single(&srcBuf, &dstBuf);,"Canny Edge");
+		timing(canny0(&srcBuf, &dstBuf);,"Canny Edge");
+
+		printf("trial: %d " , 1);
+		timing(canny1(&srcBuf, &dstBuf);,"Canny Edge");
+
+		printf("trial: %d " , 2);
+		timing(canny2(&srcBuf, &dstBuf);,"Canny Edge");
+
+		printf("trial: %d " , 3);
+		timing(canny3(&srcBuf, &dstBuf);,"Canny Edge");
+
+		printf("trial: %d " , 4);
+		timing(canny4(&srcBuf, &dstBuf);,"Canny Edge");
+
+		printf("trial: %d " , 5);
+		timing(canny5(&srcBuf, &dstBuf);,"Canny Edge");
 
 	uint8_t *out = (uint8_t *)malloc(sizeof(uint8_t) * width * height * 4);
 //Convert from Halide representation to lodepng representation of image

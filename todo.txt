@@ -40,3 +40,27 @@ Run different scheduling on arm and on x86
 Find out if JIT or AOT is faster
 
 Use Halide to run code on GPU
+
+
+see if router or gpu board is refusing connection
+
+
+Benchmark the timing
+Take the function and put it into different files
+
+
+
+
+Work on putting libraries into LD_LIBRARY_PATH for ease of access
+
+
+
+Why is arm core getting comparable performance to server
+
+Use GPU, put image onto the device memory
+runtime.h  static_image.h
+image.h ?
+
+
+
+

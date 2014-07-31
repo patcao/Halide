@@ -13,42 +13,22 @@ Func gaussianBlur(Func in);
 Func sobelMag(Func in);
 Func sobelAng(Func in);
 
-int test_case = 0;
-/** TEST CASES
- * Case 0: Default Scheduling
- * Case 1: Only compute root on Gauss
- * Case 2: Only vectorize with tiling
- * Case 3: Only run parallel
- * Case 4: Vectorize with computer root
- * Case 5: Vectorize with computer root and parallel
- **/ 
 int main(int argc, char **argv) {
 //    Image<uint8_t> input = load<uint8_t>("../images/rgb.png");
 
-
     ImageParam input(type_of<uint8_t>(), 3, "input");
-
-	std::vector<Argument> args;
-	args.push_back(input);
 
 	Var x("x"),y("y"),c("c");
 	Func in("in");
 	in(x,y,c) = input(clamp(x,0,input.width() - 1) , clamp(y,0,input.height() - 1), c);
 //	Image<uint8_t> output;
 
-	for(int i = 0; i < 6; ++i){
-		test_case = i;
 		Func mag = sobelMag(gaussianBlur(in));
-		printf("Case %d: ", i);
 
-
-		char buff[15];
-		sprintf(buff,"canny%d",i);
-		mag.compile_to_file(buff, args);
-	}
-
+		std::vector<Argument> args;
+		args.push_back(input);
+		mag.compile_to_file("canny_single", args);
 //	save(output,"both.png");
-	
 }
 
 
@@ -66,15 +46,6 @@ Func gaussianBlur(Func in){
 	Func scaled;
 	scaled(x,y,c) = convolution(in,k,5,5)(x,y,c) / 273.0f;
 
-	switch(test_case){
-		case 0: break;
-		case 1: scaled.compute_root(); break;
-		case 2: break;
-		case 3: break;
-		case 4: scaled.compute_root(); break;
-		case 5: scaled.compute_root(); break;
-		default: break;
-	}
 	return scaled;
 }
 
@@ -91,51 +62,6 @@ Func sobelMag(Func in){
 	Func mag;
 	mag(x,y,c) = cast<uint8_t>(sqrt(hs*hs+vs*vs));
 
-	Var x_outer, y_outer, x_inner, y_inner, tile_index;
-	Var x_inner_outer, y_inner_outer, x_vectors, y_pairs;
-
-
-/** TEST CASES
- * Case 0: Default Scheduling
- * Case 1: Only compute root on Gauss
- * Case 2: Only vectorize with tiling
- * Case 3: Only run parallel
- * Case 4: Vectorize with computer root
- * Case 5: Vectorize with computer root and parallel
- **/ 
-	switch(test_case){
-		case 0: break;
-		case 1: break;
-		case 2: 
-			mag.tile(x,y,x_outer,y_outer,x_inner,y_inner,256,256);
-			mag
-			.tile(x_inner, y_inner, x_inner_outer, y_inner_outer, x_vectors, y_pairs, 4, 2)
-			.vectorize(x_vectors)
-			.unroll(y_pairs);
-			break;
-		case 3: 
-			mag.tile(x,y,x_outer,y_outer,x_inner,y_inner,256,256)
-			.fuse(x_outer,y_outer,tile_index)
-			.parallel(tile_index);
-			break;
-		case 4:
-			mag.tile(x,y,x_outer,y_outer,x_inner,y_inner,256,256);
-			mag
-			.tile(x_inner, y_inner, x_inner_outer, y_inner_outer, x_vectors, y_pairs, 4, 2)
-			.vectorize(x_vectors)
-			.unroll(y_pairs);
-			break;
-		case 5: 	
-			mag.tile(x,y,x_outer,y_outer,x_inner,y_inner,256,256)
-			.fuse(x_outer,y_outer,tile_index)
-			.parallel(tile_index);
-			mag
-			.tile(x_inner, y_inner, x_inner_outer, y_inner_outer, x_vectors, y_pairs, 4, 2)
-			.vectorize(x_vectors)
-			.unroll(y_pairs);
-			break;
-		default: break;
-	}
 	return mag;
 }
 

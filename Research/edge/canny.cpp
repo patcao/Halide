@@ -2,8 +2,6 @@
 
 using Halide::Image;
 #include "image_io.h"
-#include <patlib.h>
-#include <time.h>
 
 using namespace Halide;
 using namespace std;
@@ -13,45 +11,42 @@ Func gaussianBlur(Func in);
 Func sobelMag(Func in);
 Func sobelAng(Func in);
 
- 
-int test_case = 0;
-/** TEST CASES
- * Case 0: Default Scheduling
- * Case 1: Only compute root on Gauss
- * Case 2: Only vectorize with tiling
- * Case 3: Only run parallel
- * Case 4: Vectorize with computer root
- * Case 5: Vectorize with computer root and parallel
- **/ 
 int main(int argc, char **argv) {
-    Image<uint8_t> input = load<uint8_t>("../images/rgb.png");
+    //Image<uint8_t> input = load<uint8_t>("rgb.png");
 
-	//struct timeval t1,t0;
-
+    ImageParam input(type_of<uint8_t>(), 3, "input");
 	Var x("x"),y("y"),c("c");
 	Func in("in");
 	in(x,y,c) = input(clamp(x,0,input.width() - 1) , clamp(y,0,input.height() - 1), c);
-	Image<uint8_t> output;
-
-	for(int i = 0; i < 6; ++i){
-		test_case = i;
-		Func mag = sobelMag(gaussianBlur(in));
-		printf("Case %d: ", i);
-	//	gettimeofday(&t0,0);
-		timing( output = mag.realize(input.width(),input.height(),input.channels());, "Canny");
-	//	gettimeofday(&t1,0);
-	//	long elapsed = (t1.tv_sec - t0.tv_sec) * 1000000 + t1.tv_usec - t0.tv_usec;
-	//	printf("user: %lu ms\n", elapsed / 1000);
-	}
-
-	save(output,"both.png");
+	Func mag = sobelMag(gaussianBlur(in));
+	Func ret("ret");
+	ret(x,y,c) = cast<uint8_t> (mag(x,y,c) );
 	
+	
+
+	std::vector<Argument> args;
+	args.push_back(input);
+	ret.compile_to_file("canny", args);
+
+//	Image<uint8_t> output = ret.realize(input.width(),input.height(),input.channels());		
+//	save(output,"both.png");
+	//save(input,"original.png");
 }
 
 
 //Performs a gaussian blur with a 5x5 gaussian kernel
 Func gaussianBlur(Func in){
 	Var x("x1"),y("y1"),c("c1");
+/*
+	k(x,y) = 0;
+	k(0,0) = 2;	k(0,1) = 4;	 k(0,2) = 5;   k(0,3) = 4;  k(0,4) = 2;
+	k(1,0) = 4;	k(1,1) = 9;	 k(1,2) = 12;  k(1,3) = 9;  k(1,4) = 4;
+	k(2,0) = 5;	k(2,1) = 12; k(2,2) = 15;  k(2,3) = 12; k(2,4) = 5;
+	k(3,0) = 4;	k(3,1) = 9;	 k(3,2) = 12;  k(3,3) = 9;  k(3,4) = 4;
+	k(4,0) = 2;	k(4,1) = 4;  k(4,2) = 5;   k(4,3) = 4;  k(4,4) = 2;
+	Func scaled;
+	scaled(x,y,c) = convolution(in,k,5,5)(x,y,c) / 159;
+*/
 
 	Func k("gauss_kernel");
 	k(x,y) = 0;
@@ -62,16 +57,6 @@ Func gaussianBlur(Func in){
 	k(4,0) = 1;	k(4,1) = 4;  k(4,2) = 7;   k(4,3) = 4;   k(4,4) = 1;
 	Func scaled;
 	scaled(x,y,c) = convolution(in,k,5,5)(x,y,c) / 273.0f;
-
-	switch(test_case){
-		case 0: break;
-		case 1: scaled.compute_root(); break;
-		case 2: break;
-		case 3: break;
-		case 4: scaled.compute_root(); break;
-		case 5: scaled.compute_root(); break;
-		default: break;
-	}
 	return scaled;
 }
 
@@ -86,53 +71,7 @@ Func sobelMag(Func in){
 	vs = -1.0f * in(x-1,y-1,c) - 2.0f * in(x,y-1,c)  - 1.0f * in(x+1,y-1,c) 		
 		+ 1.0f * in(x-1,y+1,c) + 2.0f * in(x,y+1,c) + 1.0f * in(x+1,y+1,c);
 	Func mag;
-	mag(x,y,c) = cast<uint8_t>(sqrt(hs*hs+vs*vs));
-
-	Var x_outer, y_outer, x_inner, y_inner, tile_index;
-	Var x_inner_outer, y_inner_outer, x_vectors, y_pairs;
-
-
-/** TEST CASES
- * Case 0: Default Scheduling
- * Case 1: Only compute root on Gauss
- * Case 2: Only vectorize with tiling
- * Case 3: Only run parallel
- * Case 4: Vectorize with computer root
- * Case 5: Vectorize with computer root and parallel
- **/ 
-	switch(test_case){
-		case 0: break;
-		case 1: break;
-		case 2: 
-			mag.tile(x,y,x_outer,y_outer,x_inner,y_inner,256,256);
-			mag
-			.tile(x_inner, y_inner, x_inner_outer, y_inner_outer, x_vectors, y_pairs, 4, 2)
-			.vectorize(x_vectors)
-			.unroll(y_pairs);
-			break;
-		case 3: 
-			mag.tile(x,y,x_outer,y_outer,x_inner,y_inner,256,256)
-			.fuse(x_outer,y_outer,tile_index)
-			.parallel(tile_index);
-			break;
-		case 4:
-			mag.tile(x,y,x_outer,y_outer,x_inner,y_inner,256,256);
-			mag
-			.tile(x_inner, y_inner, x_inner_outer, y_inner_outer, x_vectors, y_pairs, 4, 2)
-			.vectorize(x_vectors)
-			.unroll(y_pairs);
-			break;
-		case 5: 	
-			mag.tile(x,y,x_outer,y_outer,x_inner,y_inner,256,256)
-			.fuse(x_outer,y_outer,tile_index)
-			.parallel(tile_index);
-			mag
-			.tile(x_inner, y_inner, x_inner_outer, y_inner_outer, x_vectors, y_pairs, 4, 2)
-			.vectorize(x_vectors)
-			.unroll(y_pairs);
-			break;
-		default: break;
-	}
+	mag(x,y,c) = sqrt(hs*hs+vs*vs);
 	return mag;
 }
 
@@ -148,10 +87,11 @@ Func sobelAng(Func in){
 	vs = -1.0f * in(x-1,y-1,c) - 2.0f * in(x,y-1,c)  - 1.0f * in(x+1,y-1,c) 		  + 1.0f * in(x-1,y+1,c) + 2.0f * in(x,y+1,c) + 1.0f * in(x+1,y+1,c);
 	Func ang;
 	Expr bool0 = atan2(hs,vs) - 0.78539;
-//	Expr bool45 = ;
-//	Expr bool90 = ;
-//	Expr bool135 = ;
-
+	/*
+	Expr bool45 = ;
+	Expr bool90 = ;
+	Expr bool135 = ;
+*/
 	ang(x,y,c) = 5;
 	return ang;
 }
